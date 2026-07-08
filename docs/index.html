@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Burning Through Their Cloud Budget</title>
-<meta name="description" content="A step-by-step guide to avoiding Kubernetes cost blowouts and implementing effective cloud cost governance">
+<title>Kubernetes Pod Eviction: A Deep Dive into Causes, Consequences, and Remedies</title>
+<meta name="description" content="Uncover the mysteries of Kubernetes pod eviction and learn how to mitigate its effects on your cloud-native applications">
+<meta name="keywords" content="Kubernetes Pod Eviction">
 <style>
   :root {
     --text: #1a1a1a;
@@ -127,60 +128,20 @@
 </style>
 </head>
 <body>
-<h1>Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Burning Through Their Cloud Budget</h1>
-<div class="meta">A step-by-step guide to avoiding Kubernetes cost blowouts and implementing effective cloud cost governance</div>
+<h1>Unraveling the Mysterious Case of Kubernetes Pod Eviction</h1>
+<div class="meta">A Deep Dive into the Causes, Consequences, and Remedies of Unforeseen Pod Eviction in a Cloud-Native Environment</div>
 <div class="read-time">25 min read</div>
 <figure>
-  <img src="images/hero.png" alt="Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Burning Through Their Cloud Budget" />
+  <img src="images/hero.png" alt="Unraveling the Mysterious Case of Kubernetes Pod Eviction" />
 </figure>
 <article>
-<h2>Introduction to Kubernetes Cost Governance</h2><p>Kubernetes has become the de facto standard for container orchestration in the cloud, but its complexity can lead to unexpected cost blowouts if not managed properly. In this article, we'll explore a real-world scenario where a team burned through their cloud budget due to inadequate Kubernetes cost governance and walk through the steps to prevent such incidents.</p><h2>Why Kubernetes Cost Blowouts Happen</h2><p>Kubernetes cost blowouts often occur due to a combination of factors, including over-provisioning of resources, inefficient use of cloud services, and lack of visibility into cluster costs. To illustrate this, let's consider a scenario where a team deployed a Kubernetes cluster on AWS without proper cost monitoring and optimization.</p><h2>Hands-on Troubleshooting Walkthrough</h2>
-<figure class="mid-figure"><img src="images/mid_0.png" alt="Hands-on Troubleshooting Walkthrough" loading="lazy" /></figure><p>To identify the cause of the cost blowout, we need to gather more information about the cluster's resource utilization. We can use the following commands to collect data on pod usage and node utilization:</p><pre><code>kubectl top pod --sort-by=cpu</code></pre><pre><code># example output:
-NAME                         CPU(cores)   MEMORY(bytes)
-nginx-6db4899df7-2r92z   150m         120Mi
-nginx-6db4899df7-v9w78   100m         100Mi
-</code></pre><p>Next, we can use the AWS CLI to retrieve information on the cluster's node groups and instance types:</p><pre><code>aws eks describe-nodegroup --cluster-name my-cluster --nodegroup-name my-nodegroup</code></pre><pre><code># example output:
-{
-    "nodegroup": {
-        "nodegroupName": "my-nodegroup",
-        "nodegroupArn": "arn:aws:eks:us-west-2:123456789012:nodegroup/my-cluster/my-nodegroup/123456789012",
-        "clusterName": "my-cluster",
-        "createdAt": 1643723900.42,
-        "modifiedAt": 1643723900.42,
-        "instanceTypes": [
-            "t3.medium"
-        ],
-        "nodeRole": "arn:aws:iam::123456789012:role/eks-node-role",
-        "labels": {},
-        "taints": [],
-        "updateConfig": {
-            "maxUnavailable": 1,
-            "maxUnavailablePercentage": 10
-        },
-        "launchConfigurations": [
-            {
-                "name": "my-launch-configuration",
-                "securityGroupIds": [
-                    "sg-12345678"
-                ],
-                "subnetIds": [
-                    "subnet-12345678"
-                ],
-                "ec2SshKey": "my-ssh-key",
-                "instanceType": "t3.medium",
-                "iamInstanceProfile": {
-                    "arn": "arn:aws:iam::123456789012:instance-profile/eks-node-role"
-                }
-            }
-        ]
-    }
-}
-</code></pre><h2>The Practical Fix</h2>
-<figure class="mid-figure"><img src="images/mid_1.png" alt="The Practical Fix" loading="lazy" /></figure><p>To prevent Kubernetes cost blowouts, we need to implement effective cloud cost governance. This involves monitoring cluster costs, optimizing resource utilization, and implementing cost-saving measures such as autoscaling and spot instances. We can use the following commands to deploy a cost-optimized Kubernetes cluster:</p><pre><code>kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml</code></pre><pre><code>kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-spot.yaml</code></pre><h2>Reference Table</h2><table><tr><th>Instance Type</th><th>vCPU</th><th>Memory (GiB)</th><th>Price (per hour)</th></tr><tr><td>t3.medium</td><td>2</td><td>4</td><td>$0.0255</td></tr><tr><td>t3.large</td><td>2</td><td>8</td><td>$0.0510</td></tr><tr><td>c5.xlarge</td><td>4</td><td>8</td><td>$0.1920</td></tr></table><h2>Common Mistakes</h2><ul><li>Not monitoring cluster costs and resource utilization</li><li>Over-provisioning resources and not optimizing for cost</li><li>Not implementing cost-saving measures such as autoscaling and spot instances</li></ul><h2>Conclusion</h2>
-<figure class="mid-figure"><img src="images/mid_2.png" alt="Conclusion" loading="lazy" /></figure><p>In conclusion, Kubernetes cost governance is critical to preventing cost blowouts and ensuring effective use of cloud resources. By monitoring cluster costs, optimizing resource utilization, and implementing cost-saving measures, teams can ensure that their Kubernetes deployments are cost-effective and scalable. Start implementing these best practices today and take the first step towards optimizing your Kubernetes costs.</p>
+<h2>Production Incident</h2><p>I first noticed something was wrong when our monitoring system alerted us to an unusual spike in pod eviction rates within our Kubernetes cluster. The Grafana dashboard looked normal until I drilled down into the pod-level metrics, where I saw that several pods were being evicted repeatedly.</p><p>The customer impact was significant, with reports of intermittent service unavailability and delayed job processing. The timeline of events showed that the issue started after a recent deployment of a new application version.</p><h2>Architecture Overview</h2><p>Our infrastructure consists of a multi-cloud Kubernetes environment, with clusters spanning across AWS, Azure, and Google Cloud. We utilize a combination of managed services, such as AWS EKS and GKE, as well as self-managed clusters on Azure.</p><p>The application in question is a stateful service that relies on persistent volumes for data storage. We use a custom storage class that leverages the CSI driver for dynamic volume provisioning.</p><h2>Root Cause Analysis</h2><p>After conducting an in-depth analysis of the logs and metrics, we discovered that the root cause of the pod eviction was related to a mismatch between the requested and allocated resources. The new application version introduced a hidden assumption about the available resources, which led to a chain of events resulting in pod eviction.</p><h2>Investigation</h2>
+<figure class="mid-figure"><img src="images/mid_1.png" alt="Investigation" loading="lazy" /></figure><p>We used a combination of tools, including kubectl, docker, and terraform, to investigate the issue. We started by examining the pod logs and metrics, using commands like <pre><code>kubectl logs -f &lt;pod_name&gt;</code></pre> and <pre><code>kubectl top pod &lt;pod_name&gt;</code></pre> to gather insights.</p><p>We also used terraform to inspect the current state of our infrastructure, running commands like <pre><code>terraform state show &lt;resource_name&gt;</code></pre> to verify the configuration.</p><h2>Reproduction</h2><p>To reproduce the issue safely, we created a isolated test environment using a minimal reproduction case. We used a combination of docker and kubernetes to spin up a test cluster, running commands like <pre><code>docker run -d &lt;image_name&gt;</code></pre> and <pre><code>kubectl apply -f &lt;config_file&gt;</code></pre> to deploy the application.</p><h2>Production Fix</h2>
+<figure class="mid-figure"><img src="images/mid_2.png" alt="Production Fix" loading="lazy" /></figure><p>We implemented a two-phase rollout plan to address the issue. First, we updated the application configuration to reflect the correct resource requirements, using commands like <pre><code>kubectl patch deployment &lt;deployment_name&gt; -p &lt;patch_file&gt;</code></pre> to apply the changes.</p><p>Second, we performed a gradual rollout of the updated application version, using commands like <pre><code>kubectl rollout update deployment &lt;deployment_name&gt;</code></pre> to manage the deployment.</p><h2>Validation</h2><p>We verified the success of the production fix by monitoring the pod eviction rates and application performance metrics, using commands like <pre><code>kubectl get pods -w</code></pre> and <pre><code>kubectl top pod &lt;pod_name&gt;</code></pre> to gather insights.</p><h2>Lessons Learned</h2><p>We learned the importance of thorough testing and validation of application assumptions, particularly when it comes to resource requirements. We also realized the need for more robust monitoring and alerting mechanisms to detect similar issues in the future.</p><h2>Best Practices</h2><p>We recommend implementing the following best practices to avoid similar issues: <ul><li>Thoroughly test and validate application assumptions</li><li>Implement robust monitoring and alerting mechanisms</li><li>Use automated deployment and rollback strategies</li></ul></p><h2>Conclusion</h2><p>In conclusion, the mysterious case of Kubernetes pod eviction served as a valuable learning experience for our team. As we continue to navigate the complexities of cloud-native environments, we must remain vigilant and proactive in our pursuit of reliability and performance. What strategies do you employ to mitigate the risks of unforeseen pod eviction in your Kubernetes clusters?</p>
+<figure class="mid-figure"><img src="images/mid_0.png" alt="Architecture" loading="lazy" /></figure>
 </article>
 <div class="tags">
-<span class="tag">#Kubernetes</span><span class="tag">#Cloud Cost Governance</span><span class="tag">#Autoscaling</span><span class="tag">#Spot Instances</span><span class="tag">#AWS</span>
+<span class="tag">#Kubernetes</span><span class="tag">#DevOps</span><span class="tag">#Cloud Engineering</span><span class="tag">#Platform Engineering</span><span class="tag">#Cloud Security</span>
 </div>
 </body>
 </html>
