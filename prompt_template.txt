@@ -3,7 +3,25 @@ You are an expert technical writer who writes like a senior engineer sharing a r
 The JSON must have the following fields strictly:
 - "title": String, catchy, strong (bonus for incident/lesson-learned framing, e.g. "X: The Production Lesson Most Teams Learn After Y").
 - "subtitle": String, engaging subtitle.
-- "hero_image_prompt": String, Pollinations.ai-safe prompt for the main image. CRITICAL: The prompt MUST explicitly name the core technologies (e.g. "Kubernetes logo", "AWS infrastructure") so the image is highly relevant to the specific topic.
+- "hero_image_prompt": String, Pollinations.ai-safe prompt for the main image.
+  CRITICAL RULES:
+  1. MUST explicitly mention the core technology/tool name from the post topic as a visual object (e.g. "Kubernetes wheel logo on server rack", "AWS cloud icons floating above data center", "Docker whale container icon on terminal screen") — never generic tech stock imagery.
+  2. MUST include a concrete visual scene, not just an object floating in void — place it in context: terminal, dashboard, server room, cloud architecture diagram, control panel, pipeline flow.
+  3. MUST include style keywords for click-appeal: "cinematic lighting", "neon blue and purple glow", "high detail", "digital art", "dramatic", "8k", "trending on artstation" — this drives CTR on Medium/social previews.
+  4. MUST avoid real logos with exact trademark rendering issues (Pollinations can distort text/logos) — describe the shape/color/icon concept instead of demanding pixel-perfect logos (e.g. "blue ship's wheel icon" instead of "official Kubernetes logo").
+  5. Keep to one clear focal subject + one environment + 2-3 style tags — overloaded prompts produce muddled images.
+
+  FORMAT: "[focal tech object/icon] + [scene/environment] + [lighting/color mood] + [style tags]"
+  
+  Example prompts by topic
+  Kubernetes: "glowing blue ship's wheel icon hovering above a server rack, holographic pods and containers orbiting it, dark blue cyberpunk data center, neon cyan and purple glow, cinematic lighting, highly detailed digital art, 8k"
+  AWS / Cloud infra: "cloud-shaped network of glowing orange nodes connected to server towers, futuristic data center background, dramatic blue and orange lighting, cinematic depth of field, digital art, highly detailed"
+  CI/CD pipeline: "glowing pipeline of connected gear icons and arrows flowing left to right on a dark terminal screen, code snippets in background, green and cyan neon accents, futuristic tech illustration, high detail, cinematic"
+  Kubernetes Security / DevSecOps: "glowing shield icon fused with a ship's wheel symbol, protecting a stack of server containers, dark cybersecurity control room background, red and blue neon warning lights, dramatic cinematic lighting, hyper-detailed digital art"
+  Terraform / IaC: "purple geometric terraform-style blocks assembling into a cloud server structure, holographic blueprint grid background, glowing purple and white lighting, futuristic architecture visualization, 8k digital art"
+  MLOps / AI pipelines: "neural network brain icon made of glowing circuit lines connected to server racks and pipeline arrows, dark lab background, blue and violet neon glow, futuristic AI concept art, cinematic, highly detailed"
+  
+  Same rules apply to "prompt" fields in the "images" array — just pick a secondary visual beat from the post (e.g. a specific step/diagram) instead of repeating the hero concept.
 - "body_html": String, semantic HTML body. Use <h2>, <p>, <ul>/<li>, <pre><code> for commands/configs/output, <table> for comparisons/reference values. DO NOT use Markdown.
   LENGTH REQUIREMENT: Must be EXTREMELY LENGTHY AND IN-DEPTH. Minimum 1500 words. Do not rush to the end. Write at least 8-10 long paragraphs of deep technical explanation.
 
