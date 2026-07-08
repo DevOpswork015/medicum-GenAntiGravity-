@@ -224,9 +224,9 @@ Minimum:
 
 Examples:
 
-kubectl
+linux/bash
 
-helm
+python
 
 terraform
 
@@ -386,19 +386,9 @@ Containers
 
 Docker
 
-Kubernetes
-
-OpenShift
-
-Helm
+Podman
 
 Platform
-
-ArgoCD
-
-Flux
-
-Crossplane
 
 Terraform
 
@@ -461,6 +451,9 @@ TOPIC ROTATION
 ==================================================
 
 Choose ONE advanced narrow topic.
+
+CRITICAL: DO NOT WRITE ABOUT KUBERNETES OR DOCKER. The reader has seen too many Kubernetes articles.
+Focus strictly on other domains: Databases (PostgreSQL, Redis), Event Streaming (Kafka), Cloud Networking, Architecture, Security, or AI/MLOps.
 
 Avoid repeating recently used domains.
 
@@ -629,7 +622,7 @@ Use established Medium tags.
 
 Examples:
 
-Kubernetes
+Database Optimization
 
 DevOps
 
