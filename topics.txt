@@ -1,4 +1,3 @@
-Zero Trust Architecture in Modern DevOps
 The Rise of Platform Engineering
 AI-Driven SecOps and Threat Hunting
 Declarative CI/CD with GitHub Actions
