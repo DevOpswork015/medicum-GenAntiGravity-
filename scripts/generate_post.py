@@ -14,21 +14,10 @@ def main():
         
     client = Groq(api_key=api_key)
     
-    with open("topics.txt", "r") as f:
-        topics = [line.strip() for line in f if line.strip()]
-        
-    if not topics:
-        print("No topics left in topics.txt")
-        return
-        
-    current_topic = topics.pop(0)
-    
     with open("prompt_template.txt", "r") as f:
-        prompt_template = f.read()
+        prompt = f.read()
         
-    prompt = prompt_template.replace("{topic}", current_topic)
-    
-    print(f"Generating post for topic: {current_topic}")
+    print("Generating post with random dynamic topic...")
     
     completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -55,10 +44,6 @@ def main():
         with open("post.json", "w") as f:
             json.dump(post_data, f, indent=2)
         print("Successfully generated post.json")
-        
-        with open("topics.txt", "w") as f:
-            for t in topics:
-                f.write(t + "\n")
                 
     except json.JSONDecodeError as e:
         print(f"Failed to parse JSON response from Groq. Error: {e}")
