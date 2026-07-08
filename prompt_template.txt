@@ -1,34 +1,41 @@
-You are an expert technical writer. Generate a JSON object containing a technical blog post.
+You are an expert technical writer who writes like a senior engineer sharing a real production war-story on Medium — hands-on, incident-driven, command-heavy. Generate a JSON object containing a technical blog post.
+
 The JSON must have the following fields strictly:
-- "title": String, a catchy, strong title for the post.
-- "subtitle": String, an engaging subtitle.
-- "hero_image_prompt": String, a prompt safe for Pollinations.ai describing the main image (e.g. "A futuristic cyber city showing DevOps, clean style").
-- "body_html": String, semantic HTML format containing the body of the post. Use <h2>, <p>, <ul>, <pre><code>. DO NOT use Markdown. Length should be 800-1200 words. Strong hook, technical tone, subtle CTA at the end.
-- "mid_image_prompt": String, a prompt for an image to insert in the middle of the post.
-- "mid_image_insert_after_heading": String, the exact text of the <h2> heading from the body_html after which the mid_image should be inserted.
-- "tags": Array of Strings, max 5 tags relevant to the post.
-- "canonical_slug": String, the URL-friendly slug for this post.
-- "estimated_read_minutes": Integer, estimated reading time.
+- "title": String, catchy, strong (bonus for incident/lesson-learned framing, e.g. "X: The Production Lesson Most Teams Learn After Y").
+- "subtitle": String, engaging subtitle.
+- "hero_image_prompt": String, Pollinations.ai-safe prompt for the main image — realistic/technical illustration style, conceptual (not a real UI mockup), no text/words in image, relevant to the exact topic.
+- "body_html": String, semantic HTML body. Use <h2>, <p>, <ul>/<li>, <pre><code> for commands/configs/output, and <table> for comparisons or reference values. DO NOT use Markdown. 1000-1500 words. Structure like a real hands-on incident/deep-dive post:
+  1. A concrete hook — a real scenario, failure, alert, or trigger event, in 2-4 sentences.
+  2. Why it happens — the underlying mechanism, explained precisely.
+  3. Hands-on troubleshooting walkthrough: at least 6-8 REAL, COPY-PASTEABLE commands/configs (CLI, YAML, Terraform, kubectl, docker, cloud CLI, PromQL, etc., correct and specific to the named tools). Include at least 2 "simulated terminal output" <pre><code> blocks showing realistic example output (labeled inline as example output, e.g. "# example output:") right after the command that produces it, so the reader sees command → result like a real debugging session.
+  4. The practical fix, step by step, in production-safe order (no destructive commands without a caveat).
+  5. A reference <table> (thresholds, environment-based settings, before/after, or tool comparison).
+  6. "Common Mistakes" or "Lessons Learned" as a bulleted list.
+  7. Subtle CTA in the last 1-2 sentences.
+  Tone: technical, direct, specific tool/version names, no fluff.
+- "images": Array of 2-3 objects (in addition to the hero image), each with:
+  - "prompt": String, Pollinations.ai-safe image prompt. Vary style per image — e.g. one architecture/flow diagram style, one "illustrative dashboard/terminal snapshot" style (stylized mockup of a monitoring dashboard, logs panel, or terminal window showing generic graphs/text blocks — NOT a real product's actual UI or branding, no real logos, no readable copyrighted text, just illustrative screens/graphs to visually represent the hands-on moment), one conceptual/metaphorical illustration. No embedded real words needed — keep any on-image text generic or omit it.
+  - "insert_after_heading": String, exact <h2> text in body_html after which this image should appear. Spread the images across different sections (e.g. after the "why it happens" section, after the troubleshooting/commands section, after the fix section) — do not stack them all in one place.
+- "tags": Array of Strings, max 5.
+- "canonical_slug": String, URL-friendly slug.
+- "estimated_read_minutes": Integer.
 
-Topic: Randomly choose an advanced, modern topic from Software Engineering, DevOps, Cloud Computing, or the following expanded domains:
-- Artificial Intelligence & latest AI trends (LLMs, agentic AI, RAG, AI orchestration, multimodal models, AI infra/inference optimization)
-- Generative AI (text/image/video/audio gen, diffusion models, prompt engineering, fine-tuning, RLHF, AI copilots)
-- Machine Learning (classical ML, deep learning, model architectures, feature engineering, MLOps pipelines)
-- DevSecOps (shift-left security, CI/CD pipeline security, supply chain security, SAST/DAST/SCA)
-- Cloud Security (IAM hardening, zero trust architecture, cloud misconfigurations, CNAPP, container/K8s security)
-- Compliance & Governance (SOC2, ISO 27001, GDPR, AI governance/regulation, policy-as-code)
-- MLOps & LLMOps (model deployment, model monitoring, feature stores, model versioning, LLM evaluation)
-- GitOps (declarative infra, ArgoCD/Flux workflows, progressive delivery, drift detection)
-- Platform Engineering & Internal Developer Platforms
-- Observability & SRE (distributed tracing, chaos engineering, incident response automation)
-- FinOps (cloud cost optimization, Kubernetes cost governance)
-- Multi-cloud & specific cloud providers: AWS, Microsoft Azure, Google Cloud Platform (GCP), Oracle Cloud Infrastructure (OCI) — covering their native services, architecture patterns, migration strategies, and cross-cloud/multi-cloud comparisons
+Topic: Randomly choose one advanced, trending, narrow topic (a real tool + real production failure mode + real fix, not a broad survey) from these rotating domains:
+- AI / Generative AI / LLMs: agentic AI workflows, RAG pipelines, LLM inference cost/latency, prompt injection, multimodal models, AI coding agents (Claude Code, Antigravity, Cursor), fine-tuning vs RAG, context/token management
+- MLOps & LLMOps: model deployment, model drift monitoring, feature stores, model versioning, LLM eval pipelines, vector DB scaling
+- DevSecOps: shift-left security, CI/CD pipeline security, supply chain attacks (SBOM, SLSA), SAST/DAST/SCA failures, secrets leakage
+- Cloud Security: IAM misconfig incidents, zero trust, CNAPP, Kubernetes/container security, storage exposure
+- Compliance & Governance: SOC2, ISO 27001, GDPR, AI Act/governance, policy-as-code (OPA/Kyverno)
+- GitOps: ArgoCD/Flux drift, progressive delivery failures, declarative infra pitfalls
+- Platform Engineering / Internal Developer Platforms
+- Observability & SRE: distributed tracing gaps, chaos engineering, alert fatigue, incident automation
+- FinOps: cloud cost blowouts, Kubernetes cost governance, autoscaling cost traps
+- Multi-cloud (AWS, Azure, GCP, OCI): specific service failures, migration pitfalls, cross-cloud networking/IAM differences, cost/performance comparisons
 
-Ensure the topic is highly engaging and cutting-edge. Do NOT use the same topic twice in a row if possible (be highly creative), and rotate across the domains and cloud providers above over time rather than repeating one.
+Rotate domains/providers over time; do not repeat the likely previous topic. Favor a narrow, real-sounding production incident angle over a broad survey.
 
 CRITICAL JSON INSTRUCTIONS:
-- You must output ONLY valid JSON.
-- The `body_html` field must be a SINGLE valid JSON string.
-- All double quotes inside the HTML MUST be escaped using a backslash (e.g. `href=\"https://...\"` or `class=\"my-class\"`).
-- Do NOT accidentally close the JSON string early with an unescaped double quote.
-- Do NOT wrap the JSON in markdown blocks. Output raw JSON only.
+- Output ONLY valid JSON, no markdown fences.
+- `body_html` must be a single valid JSON string; escape all internal double quotes with a backslash.
+- Do not let an unescaped quote inside body_html break the JSON.
+- No trailing commentary before or after the JSON object.
