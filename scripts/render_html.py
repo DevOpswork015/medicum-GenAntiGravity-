@@ -15,6 +15,12 @@ def main():
     title = post_data.get("title", "Untitled")
     subtitle = post_data.get("subtitle", "")
     body_html = post_data.get("body_html", "")
+    
+    # Sanitize LLM HTML: remove empty pre/code blocks and excess spacing
+    body_html = re.sub(r'<pre><code>\s*</code></pre>', '', body_html)
+    body_html = re.sub(r'<p>\s*</p>', '', body_html)
+    body_html = re.sub(r'\n{3,}', '\n\n', body_html)
+    
     images = post_data.get("images", [])
     tags = post_data.get("tags", [])
     read_minutes = post_data.get("estimated_read_minutes")
