@@ -1,36 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kubernetes Cost Governance: The Autoscaling Trap</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
-        img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
-        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        code { font-family: monospace; }
-        .tag { display: inline-block; background: #eee; padding: 5px 10px; border-radius: 15px; margin-right: 5px; font-size: 0.9em; }
-        .meta { color: #666; margin-bottom: 30px; font-style: italic; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Autoscaling Blowouts</title>
+<meta name="description" content="Avoiding the pitfalls of unchecked autoscaling in Kubernetes environments">
+<style>
+  :root {
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #0d6efd;
+    --border: #ececec;
+    --code-bg: #0d1117;
+    --code-text: #e6edf3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Georgia", "Iowan Old Style", serif;
+    line-height: 1.75;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    color: var(--text);
+    background: #fff;
+  }
+  h1 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  .meta {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+  .read-time {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  figure { margin: 32px 0; }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  figcaption {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+  article h2 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin: 44px 0 18px;
+    letter-spacing: -0.01em;
+  }
+  article p { font-size: 1.15rem; margin: 0 0 20px; }
+  article ul, article ol { font-size: 1.1rem; margin: 0 0 20px; padding-left: 28px; }
+  article li { margin-bottom: 8px; }
+  article strong { font-weight: 700; }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    margin: 0 0 24px;
+  }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  :not(pre) > code {
+    background: #f1f1f1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+  }
+  th { background: #fafafa; font-weight: 700; }
+  .tags {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .tag {
+    display: inline-block;
+    background: #eef4ff;
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin: 0 8px 8px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    body { padding: 32px 18px 72px; }
+    h1 { font-size: 1.9rem; }
+    article p, article ul, article ol { font-size: 1.05rem; }
+  }
+</style>
 </head>
 <body>
-    <h1>Kubernetes Cost Governance: The Autoscaling Trap</h1>
-    <div class="meta">How we avoided a $100,000 cloud bill by fixing our Kubernetes autoscaling configuration</div>
-    <figure>
-        <img src="images/hero.png" alt="Hero Image" />
-    </figure>
-    <article>
-        <h2>Introduction</h2><p>We recently experienced a major cloud cost blowout in our Kubernetes cluster, with our monthly bill increasing by over 500%. The cause was a misconfigured autoscaling setup that led to an explosion of node creation, resulting in a huge bill.</p><h2>Why it happens</h2><p>The issue arose from a combination of factors, including a poorly designed scaling policy and inadequate monitoring. Our cluster was set up to scale based on CPU utilization, but the threshold was set too low, causing the cluster to scale up excessively.</p><h2>Troubleshooting</h2><p>To troubleshoot the issue, we used the following commands:</p><ul><li><code>kubectl get hpa -o yaml</code> to view the current Horizontal Pod Autoscaling (HPA) configuration</li><li><code>kubectl get nodes -o wide</code> to view the current node list and their respective CPU utilization</li><li><code>kubectl top node</code> to view the current CPU utilization of each node</li></ul><pre><code>kubectl get hpa -o yaml
-# example output:
-apiVersion: autoscaling/v2beta2
+<h1>Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Autoscaling Blowouts</h1>
+<div class="meta">Avoiding the pitfalls of unchecked autoscaling in Kubernetes environments</div>
+<div class="read-time">12 min read</div>
+<figure>
+  <img src="images/hero.png" alt="Kubernetes Cost Governance: The Production Lesson Most Teams Learn After Autoscaling Blowouts" />
+</figure>
+<article>
+<h2>Introduction to the Problem</h2><p>A few months ago, our team encountered a critical issue with our Kubernetes cluster. We had set up autoscaling to ensure our application could handle sudden spikes in traffic, but we didn't anticipate the cost implications. Our cluster began to scale up rapidly, and before we knew it, our cloud costs had skyrocketed. This incident taught us a valuable lesson about the importance of Kubernetes cost governance.</p><h2>Why it Happens</h2>
+<figure class="mid-figure"><img src="images/mid_0.png" alt="Why it Happens" loading="lazy" /></figure><p>Autoscaling in Kubernetes is designed to automatically adjust the number of replicas of a pod based on resource utilization. However, if not properly configured, it can lead to unintended consequences, such as over-provisioning and increased costs. The key to avoiding these issues is to understand how autoscaling works and to implement effective cost governance strategies.</p><h2>Troubleshooting and Fixing the Issue</h2>
+<figure class="mid-figure"><img src="images/mid_1.png" alt="Troubleshooting and Fixing the Issue" loading="lazy" /></figure><p>To identify the root cause of the problem, we used the following commands:</p><pre><code>kubectl get hpa -o yaml</code></pre><pre><code># example output:
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: example-hpa
+  name: my-hpa
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: example-deployment
+  selector:
+    matchLabels:
+      app: my-app
   minReplicas: 1
   maxReplicas: 10
   metrics:
@@ -40,15 +154,13 @@ spec:
       target:
         type: Utilization
         averageUtilization: 50
-</code></pre><pre><code>kubectl get nodes -o wide
-# example output:
-NAME           STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                KERNEL-VERSION   CONTAINER-RUNTIME
-example-node   Ready    worker   1d    v1.23.5   10.0.0.1      192.0.2.1      Ubuntu 22.04.1 LTS   5.15.0-46-generic   containerd://1.6.8
-</code></pre><h2>Fixing the issue</h2><p>To fix the issue, we updated our HPA configuration to use a more conservative scaling policy, and we also implemented additional monitoring and alerting to prevent similar issues in the future.</p><p>We used the following commands to update the HPA configuration:</p><ul><li><code>kubectl patch hpa example-hpa -p='{"spec":{"metrics":[{"type":"Resource","resource":{"name":"cpu","target":{"type":"Utilization","averageUtilization":70}}}]}}'</code> to update the HPA configuration to use a more conservative scaling policy</li></ul><table><tr><th>Setting</th><th>Before</th><th>After</th></tr><tr><td>Scaling threshold</td><td>50%</td><td>70%</td></tr><tr><td>Max replicas</td><td>10</td><td>5</td></tr></table><h2>Lessons Learned</h2><ul><li>Regularly review and update your HPA configuration to ensure it is aligned with your current workload and scaling requirements</li><li>Implement additional monitoring and alerting to prevent similar issues in the future</li></ul>
-<figure><img src="images/mid.png" alt="Mid Image" /></figure>
-    </article>
-    <div class="tags">
-        <span class="tag">#Kubernetes</span> <span class="tag">#Autoscaling</span> <span class="tag">#Cloud Cost Governance</span>
-    </div>
+</code></pre><p>We then used the following command to update the HPA configuration:</p><pre><code>kubectl patch hpa my-hpa -p='{"spec":{"maxReplicas":5}}'</code></pre><pre><code># example output:
+horizontalpodautoscaler.autoscaling/my-hpa patched
+</code></pre><h2>Practical Steps to Implement Cost Governance</h2>
+<figure class="mid-figure"><img src="images/mid_2.png" alt="Practical Steps to Implement Cost Governance" loading="lazy" /></figure><p>To avoid similar issues in the future, we implemented the following steps:</p><ul><li>Set up monitoring and alerting for cluster resource utilization and costs</li><li>Implement resource quotas and limits for each namespace</li><li>Use Kubernetes Vertical Pod Autoscaling (VPA) to optimize resource allocation</li></ul><table><tr><th>Strategy</th><th>Before</th><th>After</th></tr><tr><td>Autoscaling</td><td>Unlimited scaling</td><td>Max replicas: 5</td></tr><tr><td>Resource Quotas</td><td>No quotas</td><td> CPU: 10 cores, Memory: 20 GB</td></tr></table><h2>Common Mistakes and Lessons Learned</h2><ul><li>Not monitoring cluster resource utilization and costs</li><li>Not implementing resource quotas and limits</li><li>Not optimizing resource allocation using VPA</li></ul><p>In conclusion, Kubernetes cost governance is crucial to avoid autoscaling blowouts. By implementing effective monitoring, resource quotas, and optimization strategies, teams can ensure their Kubernetes environments are both scalable and cost-efficient. Consider implementing these strategies in your own environment to avoid similar issues.</p>
+</article>
+<div class="tags">
+<span class="tag">#Kubernetes</span><span class="tag">#Autoscaling</span><span class="tag">#Cost Governance</span><span class="tag">#Cloud Computing</span><span class="tag">#DevOps</span>
+</div>
 </body>
 </html>
