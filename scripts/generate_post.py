@@ -19,20 +19,29 @@ def main():
         
     print("Generating post with random dynamic topic...")
     
-    completion = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.7,
-        response_format={"type": "json_object"}
-    )
-    
-    response_content = completion.choices[0].message.content
-    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                response_format={"type": "json_object"}
+            )
+            response_content = completion.choices[0].message.content
+            break # Success, exit retry loop
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            if attempt == max_retries - 1:
+                print("Max retries reached. Exiting.")
+                return
+            print("Retrying...")
+            
     # Try to extract json from the response
     json_str = response_content
     match = re.search(r"```json\s*(.*?)\s*```", response_content, re.DOTALL)

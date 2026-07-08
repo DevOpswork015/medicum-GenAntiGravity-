@@ -26,4 +26,9 @@ Topic: Randomly choose an advanced, modern topic from Software Engineering, DevO
 
 Ensure the topic is highly engaging and cutting-edge. Do NOT use the same topic twice in a row if possible (be highly creative), and rotate across the domains and cloud providers above over time rather than repeating one.
 
-Output ONLY valid JSON, no markdown formatting blocks around it.
+CRITICAL JSON INSTRUCTIONS:
+- You must output ONLY valid JSON.
+- The `body_html` field must be a SINGLE valid JSON string.
+- All double quotes inside the HTML MUST be escaped using a backslash (e.g. `href=\"https://...\"` or `class=\"my-class\"`).
+- Do NOT accidentally close the JSON string early with an unescaped double quote.
+- Do NOT wrap the JSON in markdown blocks. Output raw JSON only.
