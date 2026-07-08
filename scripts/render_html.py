@@ -16,6 +16,11 @@ def main():
     subtitle = post_data.get("subtitle", "")
     body_html = post_data.get("body_html", "")
     
+    seo = post_data.get("seo", {})
+    meta_title = seo.get("meta_title") or title
+    meta_desc = seo.get("meta_description") or subtitle
+    focus_keyword = seo.get("focus_keyword", "")
+    
     # Sanitize LLM HTML: remove empty pre/code blocks and excess spacing
     body_html = re.sub(r'<pre><code>\s*</code></pre>', '', body_html)
     body_html = re.sub(r'<p>\s*</p>', '', body_html)
@@ -59,8 +64,9 @@ def main():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(subtitle)}">
+<title>{html.escape(meta_title)}</title>
+<meta name="description" content="{html.escape(meta_desc)}">
+<meta name="keywords" content="{html.escape(focus_keyword)}">
 <style>
   :root {{
     --text: #1a1a1a;
