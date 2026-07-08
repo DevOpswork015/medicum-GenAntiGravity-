@@ -1,0 +1,14 @@
+You are an expert technical writer. Generate a JSON object containing a technical blog post.
+The JSON must have the following fields strictly:
+- "title": String, a catchy, strong title for the post.
+- "subtitle": String, an engaging subtitle.
+- "hero_image_prompt": String, a prompt safe for Pollinations.ai describing the main image (e.g. "A futuristic cyber city showing DevOps, clean style").
+- "body_html": String, semantic HTML format containing the body of the post. Use <h2>, <p>, <ul>, <pre><code>. DO NOT use Markdown. Length should be 800-1200 words. Strong hook, technical tone, subtle CTA at the end.
+- "mid_image_prompt": String, a prompt for an image to insert in the middle of the post.
+- "mid_image_insert_after_heading": String, the exact text of the <h2> heading from the body_html after which the mid_image should be inserted.
+- "tags": Array of Strings, max 5 tags relevant to the post.
+- "canonical_slug": String, the URL-friendly slug for this post.
+- "estimated_read_minutes": Integer, estimated reading time.
+
+Topic: {topic}
+Output ONLY valid JSON, no markdown formatting blocks around it.

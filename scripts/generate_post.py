@@ -1,0 +1,68 @@
+import os
+import json
+import re
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def main():
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        print("Error: GROQ_API_KEY environment variable not set.")
+        return
+        
+    client = Groq(api_key=api_key)
+    
+    with open("topics.txt", "r") as f:
+        topics = [line.strip() for line in f if line.strip()]
+        
+    if not topics:
+        print("No topics left in topics.txt")
+        return
+        
+    current_topic = topics.pop(0)
+    
+    with open("prompt_template.txt", "r") as f:
+        prompt_template = f.read()
+        
+    prompt = prompt_template.replace("{topic}", current_topic)
+    
+    print(f"Generating post for topic: {current_topic}")
+    
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.7,
+        response_format={"type": "json_object"}
+    )
+    
+    response_content = completion.choices[0].message.content
+    
+    # Try to extract json from the response
+    json_str = response_content
+    match = re.search(r"```json\s*(.*?)\s*```", response_content, re.DOTALL)
+    if match:
+        json_str = match.group(1)
+        
+    try:
+        post_data = json.loads(json_str)
+        with open("post.json", "w") as f:
+            json.dump(post_data, f, indent=2)
+        print("Successfully generated post.json")
+        
+        with open("topics.txt", "w") as f:
+            for t in topics:
+                f.write(t + "\n")
+                
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse JSON response from Groq. Error: {e}")
+        print(response_content)
+
+if __name__ == "__main__":
+    main()
