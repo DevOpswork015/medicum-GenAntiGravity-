@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import os
 import sys
+import time
 
 def main():
     state_file = "auth/medium_state.json"
@@ -8,7 +9,9 @@ def main():
         print(f"Error: {state_file} not found. Run get_medium_session.py first.")
         sys.exit(1)
         
-    github_pages_url = os.environ.get("PAGES_URL", "http://localhost:8000/") # Default to local test if not set
+    base_url = os.environ.get("PAGES_URL", "http://localhost:8000/") # Default to local test if not set
+    # Append a timestamp to the URL to bust Medium's aggressive URL scraper cache
+    github_pages_url = f"{base_url}?t={int(time.time())}"
     
     with sync_playwright() as p:
         # Run headed if not in CI
