@@ -27,7 +27,8 @@ def main():
         try:
             print("Navigating to Medium Import Story page...")
             page.goto("https://medium.com/p/import")
-            page.wait_for_load_state("networkidle")
+            page.wait_for_load_state("domcontentloaded")
+            page.wait_for_timeout(3000)
             
             print(f"Pasting URL: {github_pages_url}")
             print(f"Pasting URL: {github_pages_url}")
@@ -58,7 +59,8 @@ def main():
                 print("Could not find 'See your story' button, looking for alternative...")
                 page.screenshot(path="debug3_no_see_story.png")
                 
-            page.wait_for_load_state("networkidle")
+            page.wait_for_load_state("domcontentloaded")
+            page.wait_for_timeout(3000)
             
             # Remove the "Originally published at" canonical link footer
             try:
