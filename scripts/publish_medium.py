@@ -59,8 +59,21 @@ def main():
                 page.screenshot(path="debug3_no_see_story.png")
                 
             page.wait_for_load_state("networkidle")
-            print("Finished import sequence.")
             
+            # Remove the "Originally published at" canonical link footer
+            try:
+                print("Removing 'Originally published at' footer...")
+                footer = page.locator('p:has-text("Originally published at")')
+                if footer.count() > 0:
+                    footer.first.click(click_count=3)
+                    page.wait_for_timeout(500)
+                    page.keyboard.press("Backspace")
+                    page.wait_for_timeout(200)
+                    page.keyboard.press("Backspace")
+            except Exception as e:
+                print(f"Could not remove footer: {e}")
+                
+            print("Finished import sequence.")
             if is_ci:
                 print("In CI environment, attempting to publish...")
                 try:
