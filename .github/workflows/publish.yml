@@ -1,7 +1,5 @@
 name: Publish to Medium
 on:
-  schedule:
-    - cron: '0 7,8 * * *'
   workflow_dispatch:
 
 jobs:
@@ -43,9 +41,19 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs/
-          git commit -m "chore: auto-generate new post" || echo "No changes to commit"
-          git push
+          git add -f post.json docs/
+          git diff --cached --quiet && echo "No changes to commit" || (
+            git commit -m "chore: auto-generate new Medium post"
+            git push
+          )
+
+      - name: Upload Post Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medium-post-content
+          path: |
+            post.json
+            docs/
           
       - name: Wait for Pages deployment
         run: |
