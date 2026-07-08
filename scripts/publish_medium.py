@@ -30,7 +30,12 @@ def main():
             page.wait_for_load_state("networkidle")
             
             print(f"Pasting URL: {github_pages_url}")
-            page.get_by_placeholder("http://www.yoursite.org/your-post").fill(github_pages_url)
+            for input_box in page.locator('input').all():
+                if input_box.is_visible():
+                    try:
+                        input_box.fill(github_pages_url)
+                    except:
+                        pass
             page.click('button:has-text("Import")')
             
             print("Waiting for Medium to parse...")
