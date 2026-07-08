@@ -30,24 +30,36 @@ def main():
             page.wait_for_load_state("networkidle")
             
             print(f"Pasting URL: {github_pages_url}")
-            for input_box in page.locator('input').all():
-                if input_box.is_visible():
-                    try:
-                        input_box.fill(github_pages_url)
-                    except:
-                        pass
+            print(f"Pasting URL: {github_pages_url}")
+            
+            # Find the descriptive text and click right below it
+            label = page.locator('text=/Enter a link/i').first
+            box = label.bounding_box()
+            if box:
+                page.mouse.click(box['x'] + box['width'] / 2, box['y'] + box['height'] + 40)
+                page.wait_for_timeout(500)
+                page.keyboard.type(github_pages_url)
+            else:
+                print("Warning: Could not find label text!")
+                page.mouse.click(500, 400)
+                page.keyboard.type(github_pages_url)
+            
             page.click('button:has-text("Import")')
             
             print("Waiting for Medium to parse...")
+            page.wait_for_timeout(5000)
+            page.screenshot(path="debug2_after_import_click.png")
+            print("Screenshot saved to debug2_after_import_click.png")
+            
             try:
-                page.wait_for_selector('button:has-text("See your story")', timeout=30000)
+                page.wait_for_selector('button:has-text("See your story")', timeout=15000)
                 page.click('button:has-text("See your story")')
             except:
                 print("Could not find 'See your story' button, looking for alternative...")
-                page.wait_for_timeout(5000)
+                page.screenshot(path="debug3_no_see_story.png")
                 
             page.wait_for_load_state("networkidle")
-            print("Story imported successfully into drafts.")
+            print("Finished import sequence.")
             
             if is_ci:
                 print("In CI environment, attempting to publish...")
