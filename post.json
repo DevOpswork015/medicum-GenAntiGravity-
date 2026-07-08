@@ -1,0 +1,34 @@
+{
+  "title": "PostgreSQL Index Corruption: A Deep Dive into Detection, Analysis, and Recovery",
+  "subtitle": "A real-world production incident, lessons learned, and best practices for database engineers",
+  "hero_image_prompt": "A cinematic view of a database engineer working late at night, with PostgreSQL logs and metrics on the screen, illuminated by volumetric lighting",
+  "body_html": "<h2>Production Incident</h2><p>I first noticed something was wrong when our monitoring system alerted us to a significant increase in query latency. The Grafana dashboard looked normal until I drilled down into the PostgreSQL metrics, where I saw a spike in disk I/O and a decrease in query throughput. Our customers started reporting errors, and we quickly realized that one of our PostgreSQL indexes had become corrupted.</p><p>The timeline of the incident was as follows: 22:00 - Monitoring system alerts us to increased query latency; 22:15 - We detect the corrupted index and start investigating; 23:00 - We identify the root cause and start working on a fix; 01:00 - We apply the fix and start verifying the results.</p><h2>Architecture Overview</h2><p>Our PostgreSQL database is hosted on AWS RDS, with a multi-AZ setup for high availability. We use a combination of PostgreSQL built-in replication and AWS RDS Multi-AZ to ensure data durability and availability. Our application connects to the database using a connection pool, with a mix of read and write traffic.</p><p>The infrastructure consists of the following components: PostgreSQL database, connection pool, application servers, and monitoring system. The traffic flow is as follows: application servers -> connection pool -> PostgreSQL database. The dependencies are: PostgreSQL database -> connection pool -> application servers.</p><h2>Root Cause Analysis</h2><p>After investigating the issue, we found that the root cause was a combination of factors, including a recent software update, a change in workload, and a hidden assumption about the database configuration. The failure chain was as follows: software update -> change in workload -> increased disk I/O -> index corruption.</p><p>The contributing factors were: inadequate monitoring, insufficient testing, and a lack of automation. We should have been more proactive in monitoring the database and testing the software update before applying it to production.</p><h2>Investigation</h2><p>We used the following commands to investigate the issue: <pre><code>psql -c \"CHECKPOINT\"; psql -c \"VACUUM\"; psql -c \"ANALYZE\"; psql -c \"REINDEX TABLE mytable\";</code></pre> We also checked the PostgreSQL logs using: <pre><code>aws rds describe-db-log-files --db-instance-identifier myinstance</code></pre> and <pre><code>aws rds download-db-log-file-portion --db-instance-identifier myinstance --log-file-name postgres.log</code></pre></p><p>We used the following metrics to monitor the database: <pre><code>promtool query \"rate(postgres_connections[1m])\"</code></pre> and <pre><code>promtool query \"rate(postgres_query_latency_seconds[1m])\"</code></pre></p><h2>Reproduction</h2><p>To reproduce the issue safely, you can use the following steps: 1. Create a test database with a similar configuration; 2. Apply the software update; 3. Simulate the change in workload; 4. Monitor the database for increased disk I/O and query latency.</p><h2>Production Fix</h2><p>We applied the following fix: <pre><code>psql -c \"REINDEX TABLE mytable\";</code></pre> We also updated our monitoring system to include more detailed metrics and alerts. The rollout plan was as follows: 1. Apply the fix to a test database; 2. Verify the results; 3. Apply the fix to the production database.</p><p>The rollback strategy was as follows: 1. Revert the software update; 2. Restore the database from a backup. The risk was low, as we had a recent backup and the fix was relatively simple.</p><h2>Validation</h2><p>We verified the success of the fix by monitoring the database metrics and checking for any errors. We used the following commands to verify the results: <pre><code>psql -c \"CHECKPOINT\"; psql -c \"VACUUM\"; psql -c \"ANALYZE\";</code></pre> We also checked the PostgreSQL logs for any errors.</p><h2>Lessons Learned</h2><p>We learned the importance of adequate monitoring, sufficient testing, and automation. We should have been more proactive in monitoring the database and testing the software update before applying it to production.</p><h2>Best Practices</h2><p>We recommend the following best practices: 1. Monitor your database regularly; 2. Test software updates before applying them to production; 3. Automate as much as possible; 4. Have a rollback strategy in place.</p><h2>Conclusion</h2><p>In conclusion, PostgreSQL index corruption can be a serious issue, but it can be detected, analyzed, and recovered from with the right tools and techniques. We hope that our experience will help others to avoid similar issues in the future.</p><p>What are some other ways to detect and prevent PostgreSQL index corruption? How do you monitor your database for potential issues?",
+  "images": [
+    {
+      "prompt": "A cinematic view of a database engineer working late at night, with PostgreSQL logs and metrics on the screen, illuminated by volumetric lighting",
+      "insert_after_heading": "Production Incident"
+    },
+    {
+      "prompt": "A detailed diagram of the PostgreSQL database architecture, including the connection pool, application servers, and monitoring system",
+      "insert_after_heading": "Architecture Overview"
+    },
+    {
+      "prompt": "A screenshot of the Grafana dashboard, showing the spike in disk I/O and query latency",
+      "insert_after_heading": "Investigation"
+    }
+  ],
+  "tags": [
+    "Database Optimization",
+    "DevOps",
+    "AWS",
+    "Platform Engineering",
+    "Cloud Security"
+  ],
+  "canonical_slug": "postgresql-index-corruption",
+  "seo": {
+    "meta_title": "PostgreSQL Index Corruption: Detection, Analysis, and Recovery",
+    "meta_description": "A real-world production incident, lessons learned, and best practices for database engineers",
+    "focus_keyword": "PostgreSQL index corruption"
+  },
+  "estimated_read_minutes": 20
+}
