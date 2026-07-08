@@ -13,8 +13,15 @@ def main():
     with sync_playwright() as p:
         # Run headed if not in CI
         is_ci = os.environ.get("CI") == "true"
-        browser = p.chromium.launch(headless=is_ci)
-        context = browser.new_context(storage_state=state_file)
+        browser = p.chromium.launch(
+            headless=is_ci,
+            channel="chrome",
+            args=["--disable-blink-features=AutomationControlled"]
+        )
+        context = browser.new_context(
+            storage_state=state_file,
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
         page = context.new_page()
         
         try:
@@ -23,7 +30,7 @@ def main():
             page.wait_for_load_state("networkidle")
             
             print(f"Pasting URL: {github_pages_url}")
-            page.fill('input[type="url"]', github_pages_url)
+            page.get_by_placeholder("http://www.yoursite.org/your-post").fill(github_pages_url)
             page.click('button:has-text("Import")')
             
             print("Waiting for Medium to parse...")
