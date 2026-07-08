@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revolutionizing Software Development with AI-Powered Internal Developer Platforms</title>
+    <title>Kubernetes Cost Governance: The Autoscaling Trap</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
         img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
@@ -14,19 +14,41 @@
     </style>
 </head>
 <body>
-    <h1>Revolutionizing Software Development with AI-Powered Internal Developer Platforms</h1>
-    <div class="meta">How AI-driven platforms are transforming the way developers work, collaborate, and innovate</div>
+    <h1>Kubernetes Cost Governance: The Autoscaling Trap</h1>
+    <div class="meta">How we avoided a $100,000 cloud bill by fixing our Kubernetes autoscaling configuration</div>
     <figure>
         <img src="images/hero.png" alt="Hero Image" />
     </figure>
     <article>
-        <h2>Introduction to AI-Powered Internal Developer Platforms</h2><p>The rise of Artificial Intelligence (AI) and Machine Learning (ML) has been transforming various aspects of software development, from coding and testing to deployment and maintenance. One of the most significant impacts of AI in software development is the emergence of AI-powered Internal Developer Platforms (IDPs). These platforms are designed to streamline development workflows, enhance collaboration, and improve overall productivity.</p><p>IDPs are essentially suites of tools and services that provide developers with a centralized environment to design, develop, test, and deploy software applications. By integrating AI and ML capabilities, these platforms can automate repetitive tasks, provide real-time feedback, and offer personalized recommendations to developers.</p><h2>Key Features of AI-Powered IDPs</h2><ul><li><strong>Automated Code Review</strong>: AI-powered IDPs can analyze code quality, detect bugs, and provide suggestions for improvement, freeing up developers to focus on more complex tasks.</li><li><strong>Intelligent Code Completion</strong>: These platforms can predict and complete code snippets, reducing development time and minimizing errors.</li><li><strong>Personalized Recommendations</strong>: AI-driven IDPs can offer tailored suggestions for code optimization, testing, and deployment, based on individual developer preferences and project requirements.</li></ul><pre><code>import pandas as pd
-from sklearn.model_selection import train_test_split
-# Example code snippet for automated data preprocessing</code></pre><p>Moreover, AI-powered IDPs can facilitate collaboration among developers by providing real-time feedback, enabling seamless communication, and promoting knowledge sharing. This can lead to faster issue resolution, improved code quality, and enhanced overall team performance.</p><h2>Benefits of Adopting AI-Powered IDPs</h2>
-<figure><img src="images/mid.png" alt="Mid Image" /></figure><p>The adoption of AI-powered IDPs can bring numerous benefits to software development teams, including:</p><ul><li><strong>Increased Productivity</strong>: By automating routine tasks and providing personalized recommendations, AI-powered IDPs can significantly boost developer productivity.</li><li><strong>Improved Code Quality</strong>: These platforms can detect bugs, suggest improvements, and enforce coding standards, resulting in higher-quality code and reduced technical debt.</li><li><strong>Enhanced Collaboration</strong>: AI-powered IDPs can facilitate communication, knowledge sharing, and teamwork, leading to better outcomes and faster time-to-market.</li></ul>
+        <h2>Introduction</h2><p>We recently experienced a major cloud cost blowout in our Kubernetes cluster, with our monthly bill increasing by over 500%. The cause was a misconfigured autoscaling setup that led to an explosion of node creation, resulting in a huge bill.</p><h2>Why it happens</h2><p>The issue arose from a combination of factors, including a poorly designed scaling policy and inadequate monitoring. Our cluster was set up to scale based on CPU utilization, but the threshold was set too low, causing the cluster to scale up excessively.</p><h2>Troubleshooting</h2><p>To troubleshoot the issue, we used the following commands:</p><ul><li><code>kubectl get hpa -o yaml</code> to view the current Horizontal Pod Autoscaling (HPA) configuration</li><li><code>kubectl get nodes -o wide</code> to view the current node list and their respective CPU utilization</li><li><code>kubectl top node</code> to view the current CPU utilization of each node</li></ul><pre><code>kubectl get hpa -o yaml
+# example output:
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: example-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: example-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+</code></pre><pre><code>kubectl get nodes -o wide
+# example output:
+NAME           STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                KERNEL-VERSION   CONTAINER-RUNTIME
+example-node   Ready    worker   1d    v1.23.5   10.0.0.1      192.0.2.1      Ubuntu 22.04.1 LTS   5.15.0-46-generic   containerd://1.6.8
+</code></pre><h2>Fixing the issue</h2><p>To fix the issue, we updated our HPA configuration to use a more conservative scaling policy, and we also implemented additional monitoring and alerting to prevent similar issues in the future.</p><p>We used the following commands to update the HPA configuration:</p><ul><li><code>kubectl patch hpa example-hpa -p='{"spec":{"metrics":[{"type":"Resource","resource":{"name":"cpu","target":{"type":"Utilization","averageUtilization":70}}}]}}'</code> to update the HPA configuration to use a more conservative scaling policy</li></ul><table><tr><th>Setting</th><th>Before</th><th>After</th></tr><tr><td>Scaling threshold</td><td>50%</td><td>70%</td></tr><tr><td>Max replicas</td><td>10</td><td>5</td></tr></table><h2>Lessons Learned</h2><ul><li>Regularly review and update your HPA configuration to ensure it is aligned with your current workload and scaling requirements</li><li>Implement additional monitoring and alerting to prevent similar issues in the future</li></ul>
+<figure><img src="images/mid.png" alt="Mid Image" /></figure>
     </article>
     <div class="tags">
-        <span class="tag">#AI-Powered IDPs</span> <span class="tag">#Software Development</span> <span class="tag">#Internal Developer Platforms</span> <span class="tag">#AI in Software Development</span> <span class="tag">#DevOps</span>
+        <span class="tag">#Kubernetes</span> <span class="tag">#Autoscaling</span> <span class="tag">#Cloud Cost Governance</span>
     </div>
 </body>
 </html>
