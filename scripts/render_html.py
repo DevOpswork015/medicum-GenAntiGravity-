@@ -13,20 +13,24 @@ def main():
     title = post_data.get("title", "Untitled")
     subtitle = post_data.get("subtitle", "")
     body_html = post_data.get("body_html", "")
-    mid_heading = post_data.get("mid_image_insert_after_heading", "")
+    images = post_data.get("images", [])
     tags = post_data.get("tags", [])
     
-    mid_image_html = '<figure><img src="images/mid.png" alt="Mid Image" /></figure>'
-    
-    if mid_heading:
-        # Regex to find the heading and insert after it
-        heading_pattern = re.compile(rf"(<h2>\s*{re.escape(mid_heading)}\s*</h2>)", re.IGNORECASE)
-        if heading_pattern.search(body_html):
-            body_html = heading_pattern.sub(r"\1\n" + mid_image_html, body_html, count=1)
-        else:
-            body_html += "\n" + mid_image_html
-    else:
-        body_html += "\n" + mid_image_html
+    for idx, img_data in enumerate(images):
+        heading = img_data.get("insert_after_heading", "")
+        img_html = f'<figure><img src="images/mid_{idx}.png" alt="Mid Image {idx}" /></figure>'
+        
+        inserted = False
+        if heading:
+            # Regex to find the heading and insert after it
+            heading_pattern = re.compile(rf"(<h2>\s*{re.escape(heading)}\s*</h2>)", re.IGNORECASE)
+            if heading_pattern.search(body_html):
+                body_html = heading_pattern.sub(r"\1\n" + img_html, body_html, count=1)
+                inserted = True
+                
+        if not inserted:
+            # Fallback if heading isn't found
+            body_html += "\n" + img_html
         
     tags_html = " ".join([f'<span class="tag">#{tag}</span>' for tag in tags])
     

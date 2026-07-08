@@ -31,8 +31,10 @@ def main():
     hero_prompt = post_data.get("hero_image_prompt", "Tech blog banner")
     download_image(hero_prompt, "docs/images/hero.png")
     
-    mid_prompt = post_data.get("mid_image_prompt", "Technology illustration")
-    download_image(mid_prompt, "docs/images/mid.png")
+    images = post_data.get("images", [])
+    for idx, img_data in enumerate(images):
+        prompt = img_data.get("prompt", "Technology illustration")
+        download_image(prompt, f"docs/images/mid_{idx}.png")
 
 if __name__ == "__main__":
     main()
